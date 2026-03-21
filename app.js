@@ -35,6 +35,14 @@ app.get("/users", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/wishlist", wishlistRoutes);
 
+
+app.get("/check-wishlist", (req, res) => {
+  db.query("SHOW TABLES", (err, result) => {
+    if (err) return res.json(err);
+    res.json(result);
+  });
+});
+
 // ================= ERROR HANDLER =================
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -47,3 +55,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+

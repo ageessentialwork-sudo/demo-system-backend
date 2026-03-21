@@ -9,7 +9,6 @@ const router = express.Router();
 router.post("/add", authMiddleware, (req, res) => {
 
   const user_id = req.user.userId; // from token
-
   const {
     product_id,
     product_title,
@@ -43,21 +42,20 @@ router.post("/add", authMiddleware, (req, res) => {
 // ✅ GET USER WISHLIST
 router.get("/", authMiddleware, (req, res) => {
 
-  const user_id = req.user.userId;
+  const userId = req.user.id;
 
-  const sql = "SELECT * FROM wishlist WHERE user_id = ?";
+  const sql = "SELECT * FROM wishlist WHERE user_id=?";
 
-  db.query(sql, [user_id], (err, results) => {
+  db.query(sql, [userId], (err, result) => {
 
-    if (err) {
-      console.error(err);
+    if(err)
       return res.status(500).json({ error: "database error" });
-    }
 
-    res.json(results);
+    res.json(result);
+
   });
-});
 
+});
 
 // ✅ REMOVE PRODUCT FROM WISHLIST
 router.delete("/remove", authMiddleware, (req, res) => {
