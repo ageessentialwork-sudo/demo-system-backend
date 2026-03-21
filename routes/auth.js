@@ -2,55 +2,64 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const db = require("../db");
 
+
 const router = express.Router();
 
 
 // REGISTER
-router.post("/register", async (req,res)=>{
+router.post("/register", async (req, res) => {
+  const { name, email, password } = req.body;
 
-    const {name,email,password} = req.body;
-   
-    const hash = await bcrypt.hash(password,10);
-   
-    const sql = "INSERT INTO users (name,email,password) VALUES (?,?,?)";
-   
-    db.query(sql,[name,email,hash],(err,result)=>{
-   
-      if(err){
-        console.log(err)
-        return res.status(500).json({error:"database error"})
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    db.query(
+      "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
+      [name, email, hashedPassword],
+      (err, result) => {
+        if (err) return res.status(500).json(err);
+
+        res.json({ message: "User registered successfully 🚀" });
       }
-   
-      res.json({message:"user created"})
-   
-    })
-   
-   })
+    );
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
 
+const jwt = require("jsonwebtoken");
 
 // LOGIN
-router.post("/login",(req,res)=>{
+router.post("/login", (req, res) => {
+  const { email, password } = req.body;
 
- const {email,password} = req.body;
+  db.query(
+    "SELECT * FROM users WHERE email = ?",
+    [email],
+    async (err, results) => {
+      if (err) return res.status(500).json(err);
 
- const sql = "SELECT * FROM users WHERE email=?";
+      if (results.length === 0) {
+        return res.status(400).json({ message: "User not found" });
+      }
 
- db.query(sql,[email],async(err,result)=>{
+      const user = results[0];
 
-    if(result.length===0)
-        return res.json({error:"user not found"});
+      const isMatch = await bcrypt.compare(password, user.password);
 
-    const user = result[0];
+      if (!isMatch) {
+        return res.status(400).json({ message: "Wrong password" });
+      }
 
-    const match = await bcrypt.compare(password,user.password);
+      const token = jwt.sign(
+        { id: user.id },
+        "secretkey",
+        { expiresIn: "1h" }
+      );
 
-    if(!match)
-        return res.json({error:"wrong password"});
-
-    res.json({message:"login success",user_id:user.id});
-
- });
-
+      res.json({ message: "Login successful", token });
+    }
+  );
 });
 
 
