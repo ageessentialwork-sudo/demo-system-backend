@@ -56,22 +56,21 @@ router.get("/", authMiddleware, (req, res) => {
 });
 
 // ✅ REMOVE PRODUCT FROM WISHLIST
-router.delete("/remove", authMiddleware, (req, res) => {
+router.delete("/remove/:id", authMiddleware, (req, res) => {
 
-  const user_id = req.user.userId;
-  const { product_id } = req.body;
+  const user_id = req.user.id;
+  const wishlist_id = req.params.id;
 
-  const sql = "DELETE FROM wishlist WHERE user_id = ? AND product_id = ?";
+  const sql = "DELETE FROM wishlist WHERE id=? AND user_id=?";
 
-  db.query(sql, [user_id, product_id], (err, result) => {
+  db.query(sql, [wishlist_id, user_id], (err, result) => {
 
-    if (err) {
-      console.error(err);
+    if (err)
       return res.status(500).json({ error: "database error" });
-    }
 
     res.json({ message: "Removed from wishlist ❌" });
-  });
-});
 
+  });
+
+});
 module.exports = router;
