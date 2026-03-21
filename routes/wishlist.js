@@ -8,7 +8,8 @@ const router = express.Router();
 // ✅ ADD PRODUCT TO WISHLIST
 router.post("/add", authMiddleware, (req, res) => {
 
-  const user_id = req.user.userId; // from token
+  const user_id = req.user.id; // 🔥 from token
+
   const {
     product_id,
     product_title,
@@ -20,22 +21,19 @@ router.post("/add", authMiddleware, (req, res) => {
   const sql = `
     INSERT INTO wishlist
     (user_id, product_id, product_title, product_price, product_image, product_url)
-    VALUES (?, ?, ?, ?, ?, ?)
+    VALUES (?,?,?,?,?,?)
   `;
 
-  db.query(
-    sql,
+  db.query(sql,
     [user_id, product_id, product_title, product_price, product_image, product_url],
     (err, result) => {
 
-      if (err) {
-        console.error(err);
+      if (err)
         return res.status(500).json({ error: "database error" });
-      }
 
       res.json({ message: "Added to wishlist ✅" });
-    }
-  );
+
+    });
 });
 
 
@@ -48,7 +46,7 @@ router.get("/", authMiddleware, (req, res) => {
 
   db.query(sql, [userId], (err, result) => {
 
-    if(err)
+    if (err)
       return res.status(500).json({ error: "database error" });
 
     res.json(result);
