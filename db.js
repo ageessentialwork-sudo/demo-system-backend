@@ -1,4 +1,4 @@
-const mysql = require('mysql2');
+const mysql = require("mysql2");
 
 const db = mysql.createConnection({
   host: process.env.MYSQLHOST,
@@ -10,9 +10,9 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
   if (err) {
-    console.error('DB connection failed:', err);
+    console.error("❌ DB connection failed:", err);
   } else {
-    console.log('Connected to Railway MySQL 🚀');
+    console.log("✅ Connected to Railway MySQL 🚀");
   }
 });
 
