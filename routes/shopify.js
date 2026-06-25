@@ -30,4 +30,96 @@ res.sendStatus(200)
 
 })
 
+// ========================================
+// GET PRODUCTS
+// ========================================
+
+router.get("/products", async (req, res) => {
+
+    const SHOP_DOMAIN =
+    "1e8u6g-mp.myshopify.com"
+    
+    const STOREFRONT_TOKEN =
+    "2a560fa17d66837970c0da9b77dba810"
+    
+    const query = `
+    {
+      products(first:10){
+    
+        edges{
+    
+          node{
+    
+            id
+            title
+            handle
+    
+            images(first:1){
+              edges{
+                node{
+                  url
+                }
+              }
+            }
+    
+            priceRange{
+              minVariantPrice{
+                amount
+              }
+            }
+    
+            variants(first:1){
+              edges{
+                node{
+                  id
+                }
+              }
+            }
+    
+          }
+    
+        }
+    
+      }
+    }
+    `
+    
+    try{
+    
+    const response = await fetch(
+    `https://${SHOP_DOMAIN}/api/2026-01/graphql.json`,
+    {
+    
+    method:"POST",
+    
+    headers:{
+    "Content-Type":"application/json",
+    
+    "X-Shopify-Storefront-Access-Token":
+    STOREFRONT_TOKEN
+    },
+    
+    body: JSON.stringify({ query })
+    
+    }
+    )
+    
+    const data = await response.json()
+    
+    res.json(data)
+    
+    }
+    
+    catch(err){
+    
+    console.error(err)
+    
+    res.status(500).json({
+    error:"Shopify fetch failed"
+    })
+    
+    }
+    
+    })
+
 module.exports = router
